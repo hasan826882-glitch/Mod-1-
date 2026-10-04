@@ -1,0 +1,25 @@
+name: Build
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Zip'i ac ve derle
+        run: |
+          unzip -q proje.zip -d proje
+          cd "$(dirname "$(find proje -name gradlew | head -n1)")"
+          chmod +x gradlew
+          ./gradlew build
+          mkdir -p "$GITHUB_WORKSPACE/out"
+          cp build/libs/*.jar "$GITHUB_WORKSPACE/out/"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jar
+          path: out/*.jar
